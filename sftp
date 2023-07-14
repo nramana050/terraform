@@ -1,0 +1,51 @@
+# Configure AWS provider
+provider "aws" {
+  region = "eu-west-1"
+}
+
+# Create an S3 bucket for data lake storage
+resource "aws_s3_bucket" "data_lake_bucket" {
+  bucket = "data_lake_bucket_name"
+  # Add other configuration options as needed
+}
+
+# Create an IAM role for the SFTP server
+resource "aws_iam_role" "sftp_server_role" {
+  name = "sftp_server_role_name"
+  # Add necessary permissions for accessing S3 bucket
+  assume_role_policy = 
+{
+  "Version": "",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "transfer.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+# Create an AWS Transfer for SFTP server
+resource "aws_transfer_server" "sftp_server" {
+  identity_provider_type = "SERVICE_MANAGED"
+  endpoint_type           = "PUBLIC"
+  endpoint_details {
+    address_allocation_id = "_allocation_id>"
+    vpc_endpoint_id       = "vpc_endpoint_id>"
+
+  # Set the role created above as the server's IAM role
+  role                   = aws_iam_role.sftp_server_role.arn
+  # Attach the S3 bucket as the server's root directory
+  tags = {
+    Name = "<sftp_server_name>"
+  }
+}
+
+# Output the SFTP server endpoint address
+output "sftp_server_endpoint" {
+  value = aws_transfer_server.sftp_server.endpoint
+}
