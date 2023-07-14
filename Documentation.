@@ -1,0 +1,43 @@
+AWS Transfer Family: Use AWS Transfer Family to create an SFTP server in the eu-west-1 region.
+
+AWS Identity and Access Management (IAM): Create an IAM policy that allows the agencies to
+upload files to the designated S3 bucket and restricts their access to only the necessary resources.
+Apply this policy to the IAM user created for each agency
+
+Amazon S3: Create an S3 bucket in the eu-west-1 region to serve as the landing zone for the data
+uploaded by the agencies. Configure the bucket to enforce server-side encryption for data-at-rest
+and enable access logging for auditing purposes.
+
+AWS Lambda: Set up an AWS Lambda function to process the uploaded files.
+
+Amazon CloudWatch Events: Create a CloudWatch Events rule to schedule a Lambda function that
+checks.
+
+Configure provider:
+SFTP.TF
+
+provider &quot;aws&quot; {
+region = &quot;us-west-2&quot;
+}
+
+resource &quot;aws_transfer_server&quot; &quot;sftp_server&quot; {
+identity_provider_type = &quot;SERVICE_MANAGED&quot;
+tags = {
+Name = &quot;MySFTPServer&quot;
+}
+}
+
+resource &quot;aws_transfer_user&quot; &quot;sftp_user&quot; {
+server_id = aws_transfer_server.sftp_server.id
+user_name = &quot;sftpuser&quot;
+home_directory = &quot;/sftpuser&quot;
+}
+
+Resource &quot;aws_s3_bucket&quot; &quot;s3_bucket&quot; {
+Bucket = &quot;my-s3-bucket&quot;
+acl = &quot;private&quot;
+}
+
+Frugality: To keep the AWS bill as small as possible, consider optimizing the resources used.
+Leverage AWS Free Tier-eligible services, utilize appropriate instance types and sizes, and implement
+lifecycle policies in S3 to transition and expire data as per business requirements.
